@@ -36,23 +36,28 @@ else
       fi
     fi
 
-    # If image not png, create converted copy
     # Set backgroud as default lock screen
     if [ "$file" == *.png ]
     then
       gksu cp "$file" /usr/share/backgrounds/warty-final-ubuntu.png
     else
+      # If image not png, try to create converted png copy using morgify
+      # morgify will overwrite file if it already exists, must check before creating
       echo "WARNING: $fileName is not a valid png file and cannot be set as lock screen background."
 
+      # Get filename without extension
       withoutExt=$(echo "$file" | cut -f 1 -d '.')
       withoutExtFN=$(echo "$fileName" | cut -f 1 -d '.')
+      echo "WARNING: Will try to create $withoutExtFN.png and set it as lock screen background."
 
+      # Check if png file already exists
       if [ -f "$withoutExt.png" ];
       then
-         echo "WARNING: Will try to create $withoutExtFN.png and set it as lock screen background."
-         echo "ERROR: Unable to create file $withoutExtFN.png because file already exist and would be overwritten."
-         exit -1
+        # Don't overwrite
+        echo "ERROR: Unable to create file $withoutExtFN.png because file already exist and would be overwritten."
+        exit -1
       else
+        # Doesn't exist, create png and set lock screen background
          mogrify -format png "$file"
          gksu mv "$withoutExt.png" "/usr/share/backgrounds/warty-final-ubuntu.png"
       fi
