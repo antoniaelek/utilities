@@ -13,7 +13,9 @@ then
 else
   file=$1
   fileName=$(echo "$file" | rev | cut -f 1 -d '/' | rev )
+  extension=$(echo "$fileName" | rev | cut -f 1 -d '.' | rev )
 
+  echo "$extension"
   # Check if file exists
   if [ -f "$file" ]
   then
@@ -36,8 +38,8 @@ else
       fi
     fi
 
-    # Set backgroud as default lock screen
-    if [ "$file" == *.png ]
+    # Set png backgroud image as default lock screen
+    if [ $extension == 'png' ]
     then
       gksu cp "$file" /usr/share/backgrounds/warty-final-ubuntu.png
     else
@@ -54,12 +56,13 @@ else
       if [ -f "$withoutExt.png" ];
       then
         # Don't overwrite
-        echo "ERROR: Unable to create file $withoutExtFN.png because file already exist and would be overwritten."
-        exit -1
+        echo "WARNING: File $withoutExtFN.png already exists, will not overwritte."
+        echo "WARNING: Setting $withoutExtFN.png as lock screen background."
+        gksu cp "$withoutExt.png" /usr/share/backgrounds/warty-final-ubuntu.png
       else
         # Doesn't exist, create png and set lock screen background
-         mogrify -format png "$file"
-         gksu mv "$withoutExt.png" "/usr/share/backgrounds/warty-final-ubuntu.png"
+        mogrify -format png "$file"
+        gksu mv "$withoutExt.png" "/usr/share/backgrounds/warty-final-ubuntu.png"
       fi
     fi
 
